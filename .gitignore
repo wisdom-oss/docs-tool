@@ -4,6 +4,9 @@
 # Production
 /build
 
+# IDE
+.idea
+
 # Personal access token
 .pat
 
