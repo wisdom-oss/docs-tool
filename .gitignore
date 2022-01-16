@@ -4,6 +4,10 @@
 # Production
 /build
 
+# Repos pulled
+/repos
+repos.json
+
 # IDE
 .idea
 
