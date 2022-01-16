@@ -43,6 +43,13 @@ const config = {
         },
         items: [
           {
+            type: "dropdown",
+            position: "right",
+            items: [],
+            customType: "branchSelect",
+            branches: ["main", "dev"]
+          },
+          {
             href: 'https://github.com/wisdom-oss',
             label: 'GitHub',
             position: 'right',
