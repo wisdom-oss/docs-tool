@@ -5,6 +5,10 @@ const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const fs = require('fs');
 const path = require('path');
+const plugin = require("remark-admonitions");
+
+const reposContent = fs.readFileSync(path.join(__dirname, "repos.json"), "utf8");
+const repos = JSON.parse(reposContent);
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -19,7 +23,8 @@ const config = {
   projectName: 'WISdoM', // Usually your repo name.
 
   plugins: [
-    '@docusaurus/theme-classic'
+    '@docusaurus/theme-classic',
+    "@docusaurus/plugin-debug"
     // @ts-ignore
   ].concat(reposDocs()),
 
@@ -75,7 +80,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} WISdoM. Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
@@ -85,46 +90,72 @@ const config = {
 };
 
 function reposNavbar() {
-  let reposContent = fs.readFileSync(path.join(__dirname, "repos.json"), "utf8");
-  let repos = JSON.parse(reposContent);
-
   let items = [];
   for (let repo of Object.values(repos)) {
-    items.push({
-      to: `repos/${repo.name}/${repo.defaultBranch}/`,
+    let {hasAPI, hasDocs, hasReadme} = repo.defaultBranch;
+    if (!(hasAPI || hasDocs || hasReadme)) continue;
+    let item = {
       label: repo.name,
-      position: 'left'
-    })
+      position: "left"
+    }
+    if (hasReadme) {
+      item.to = `repos/${repo.name}/${repo.defaultBranch.name}/README`;
+    }
+    if (hasAPI || hasDocs) {
+      item.items = [];
+      item.type = "dropdown";
+      if (hasAPI) {
+        item.items.push({
+          to: `repos/${repo.name}/${repo.defaultBranch.name}/api`,
+          label: "Rest API"
+        });
+      }
+      if (hasDocs) {
+        item.items.push({
+          to: `repos/${repo.name}/${repo.defaultBranch.name}/${repo.defaultBranch.hasDocs.split(".md")[0]}`,
+          label: "Docs"
+        });
+      }
+    }
+    items.push(item);
   }
   return items;
 }
 
 function reposDocs() {
-  let reposContent = fs.readFileSync(path.join(__dirname, "repos.json"), "utf8");
-  let repos = JSON.parse(reposContent);
-
   let plugins = [];
   for (let repo of Object.values(repos)) {
-    if (!repo.branches.some(branch => branch.hasReadme)) continue;
-    plugins.push([
-      "@docusaurus/plugin-content-docs",
-      {
-        id: `repos_docs_${repo.name.replaceAll(/\s+/g, "_")}`,
-        path: `repos/${repo.name}`,
-        routeBasePath: `repos/${repo.name}`,
-        sidebarPath: require.resolve("./repos/sidebar.js"),
-      }
-    ])
-
     for (let branch of repo.branches) {
-      if (branch.name !== "main") continue;
-      if (branch.hasAPI) {
+      if (branch[1].hasReadme) {
+        plugins.push([
+          "@docusaurus/plugin-content-pages",
+          {
+            id: `repos_pages_${repo.name.replaceAll(/\s+/g, "_")}_${branch[0].replaceAll(/\s+/g, "_")}`,
+            path: `repos/${repo.name}/${branch[0]}/readme`,
+            routeBasePath: `repos/${repo.name}/${branch[0]}/`
+          }
+        ])
+      }
+
+      if (branch[1].hasDocs) {
+        plugins.push([
+          "@docusaurus/plugin-content-docs",
+          {
+            id: `repos_docs_${repo.name.replaceAll(/\s+/g, "_")}_${branch[0].replaceAll(/\s+/g, "_")}`,
+            path: `repos/${repo.name}/${branch[0]}/docs/`,
+            routeBasePath: `repos/${repo.name}/${branch[0]}/docs/`,
+            sidebarPath: require.resolve("./src/sidebar.js")
+          }
+        ]);
+      }
+
+      if (branch[1].hasAPI) {
         plugins.push([
           "docusaurus-plugin-openapi",
           {
-            id: `repos_api_${repo.name.replaceAll(/\s+/g, "_")}`,
-            path: `repos/${repo.name}/${branch.name}/${branch.hasAPI}`,
-            routeBasePath: `repos/${repo.name}/${branch.name}/api`
+            id: `repos_api_${repo.name.replaceAll(/\s+/g, "_")}_${branch[0].replaceAll(/\s+/g, "_")}`,
+            path: `repos/${repo.name}/${branch[0]}/${branch[1].hasAPI}`,
+            routeBasePath: `repos/${repo.name}/${branch[0]}/api`
           }
         ])
       }
