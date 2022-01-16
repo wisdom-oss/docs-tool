@@ -24,7 +24,8 @@ const config = {
 
   plugins: [
     '@docusaurus/theme-classic',
-    "@docusaurus/plugin-debug"
+    "@docusaurus/plugin-debug",
+    "@docusaurus/plugin-content-pages"
     // @ts-ignore
   ].concat(reposDocs()),
 
@@ -47,7 +48,7 @@ const config = {
             position: "right",
             items: [],
             customType: "branchSelect",
-            branches: ["main", "dev"]
+            branches: reposBranches()
           },
           {
             href: 'https://github.com/wisdom-oss',
@@ -169,6 +170,17 @@ function reposDocs() {
     }
   }
   return plugins;
+}
+
+function reposBranches() {
+  let branchSelect = {};
+  for (let repo of Object.values(repos)) {
+    branchSelect[repo.name] = [];
+    for (let [branch] of repo.branches) {
+      branchSelect[repo.name].push(branch);
+    }
+  }
+  return branchSelect;
 }
 
 module.exports = config;
