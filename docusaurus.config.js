@@ -16,7 +16,7 @@ const config = {
   tagline: 'WISdoM Docs',
   url: 'https://wisdom.uol.de/',
   baseUrl: '/',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'wisdom-oss', // Usually your GitHub org/user name.
@@ -24,7 +24,7 @@ const config = {
 
   plugins: [
     '@docusaurus/theme-classic',
-    "@docusaurus/plugin-debug",
+    //"@docusaurus/plugin-debug",
     "@docusaurus/plugin-content-pages"
     // @ts-ignore
   ].concat(reposDocs()),

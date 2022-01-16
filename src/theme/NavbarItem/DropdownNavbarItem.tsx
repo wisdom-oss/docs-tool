@@ -1,17 +1,18 @@
 import React from 'react';
 import OriginalDropdownNavbarItem from "@theme-original/NavbarItem/DropdownNavbarItem";
+import {useLocation} from "react-router-dom";
 
 const labelIcon = "🪴"; // for now it's a potted plant
 
 function DropdownNavbarItem({...props}): JSX.Element {
   if (props.customType == "branchSelect") {
     try {
-      let [match, currentRepo, currentBranch] = window.location.href
+      let [match, currentRepo, currentBranch] = useLocation().pathname
         .match(/\/repos\/([^\/]+)\/([^\/]+)/);
       props.label = labelIcon + "Branch - " + currentBranch;
       props.items = [];
       for (let branch of props.branches[currentRepo]) {
-        let currentLocation = window.location.href
+        let currentLocation = useLocation().pathname
           .replace(/\/repos\/([^\/]+)\/[^\/]+/, "/repos/$1/" + branch);
         props.items.push({
           to: currentLocation,
@@ -21,7 +22,10 @@ function DropdownNavbarItem({...props}): JSX.Element {
       }
     }
     catch (e) {
-      console.warn("The branch dropdown cannot find repo or branch in " + window.location.href);
+      console.warn(
+        "The branch dropdown cannot find repo or branch in " +
+        useLocation().pathname
+      );
       return null;
     }
     finally {
