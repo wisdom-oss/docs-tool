@@ -38,7 +38,9 @@ const org = "wisdom-oss";
   let reposJson = await reposReq.json();
 
   // remove old repo data
-  fs.rmSync(path.join(__dirname, "../repos"), {recursive: true});
+  let reposPath = path.join(__dirname, "../repos");
+  fs.rmSync(reposPath, {recursive: true, force: true});
+  fs.mkdirSync(reposPath, {recursive: true});
 
   // prepare repos object to be filled later
   let repos = {};
