@@ -6,13 +6,16 @@
     "start": "docusaurus start",
     "build": "docusaurus build",
     "serve": "docusaurus serve",
+    "prebuild-admin": "primp admin -r",
     "build-admin": "tsc --project tsconfig.admin.json",
+    "start-admin": "node admin-out/app.js",
     "update-repos": "node scripts/fetchRepos.js"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.14",
     "@docusaurus/preset-classic": "2.0.0-beta.14",
     "@mdx-js/react": "^1.6.21",
+    "await-lock": "^2.1.0",
     "clsx": "^1.1.1",
     "docusaurus-plugin-openapi": "^0.4.2",
     "docusaurus-theme-openapi": "^0.4.2",
@@ -26,6 +29,7 @@
     "@docusaurus/module-type-aliases": "2.0.0-beta.14",
     "@tsconfig/docusaurus": "^1.0.4",
     "node-fetch": "^3.1.0",
+    "pretty-ts-imports": "^1.0.0",
     "typescript": "^4.5.2",
     "unzipit": "^1.4.0"
   },
