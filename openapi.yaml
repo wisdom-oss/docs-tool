@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  title: WISdoM Docs Admin Endpoint
+  version: 0.1.0
+  description: >-
+    The admin endpoint for the WISdoM docs, these allow manipulating the already
+    running docs server.
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+paths:
+  /restart:
+    post:
+      summary: Restart the docs server.
+      operationId: "restart"
+      security:
+        - BearerAuth: []
+      responses:
+        202:
+          description: The request was granted, the docs server will restart.
+        409:
+          description: The server is currently restarting.
+  /update:
+    post:
+      summary: Update the repo data for the docs server.
+      operationId: "update"
+      security:
+        - BearerAuth: []
+      responses:
+        500:
+          description: The fetch or the build failed.
+        409:
+          description: The fetcher or updater are currently working.
+        200:
+          description: Successfully updated docs data.
