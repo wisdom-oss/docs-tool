@@ -100,6 +100,7 @@ const config = {
 function reposNavbar() {
   let items = [];
   for (let repo of Object.values(repos)) {
+    if (repo.private) continue;
     let {hasAPI, hasDocs, hasReadme} = repo.defaultBranch;
     if (!(hasAPI || hasDocs || hasReadme)) continue;
     let item = {
