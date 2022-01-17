@@ -21,12 +21,16 @@ module.exports = async function(repo, branch, pat) {
   const nodeFetch = await import("node-fetch");
   const unzipit = await import("unzipit");
   const sanitizeMD = await import("./sanitizeMD.js");
+  const HttpsProxyAgent = (await import("https-proxy-agent")).default;
 
   // define fetch function as node-fetch's fetch but add the auth header
   const fetch = function(url, init) {
     let requestInit = init ?? {};
     requestInit.headers  = requestInit.headers ?? {};
     requestInit.headers.Authorization = "token " + pat;
+    if (process.env.HTTPS_PROXY) {
+      requestInit.agent = new HttpsProxyAgent(process.env.HTTPS_PROXY);
+    }
     return nodeFetch.default(url, requestInit);
   }
 

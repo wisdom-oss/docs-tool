@@ -17,6 +17,7 @@ const org = "wisdom-oss";
   const path = await import("path");
   const fetchRepo = await import("./fetchRepoBranch.js");
   const nodeFetch = await import("node-fetch");
+  const HttpsProxyAgent = (await import("https-proxy-agent")).default;
 
   // load personal access token to authorization
   const pat = fs.readFileSync(path.join(__dirname,"..", ".pat"), "utf8").trim();
@@ -26,6 +27,9 @@ const org = "wisdom-oss";
     let requestInit = init ?? {};
     requestInit.headers  = requestInit.headers ?? {};
     requestInit.headers.Authorization = "token " + pat;
+    if (process.env.HTTPS_PROXY) {
+      requestInit.agent = new HttpsProxyAgent(process.env.HTTPS_PROXY);
+    }
     return nodeFetch.default(url, requestInit);
   }
 

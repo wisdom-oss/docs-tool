@@ -20,6 +20,7 @@
     "docusaurus-plugin-openapi": "^0.4.2",
     "docusaurus-theme-openapi": "^0.4.2",
     "express": "^4.17.2",
+    "https-proxy-agent": "^5.0.0",
     "prism-react-renderer": "^1.2.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
