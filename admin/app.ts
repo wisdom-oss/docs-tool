@@ -1,44 +1,71 @@
-import express from "express";
-import {spawn} from "child_process";
+/**
+ * Script to run an admin endpoint for updating the served files.
+ */
+import express, {Request} from "express";
+import {readFileSync} from "fs";
 import {join} from "path";
 import {platform} from "process";
-import kill from "tree-kill";
-import fetchRepo from "../scripts/fetchRepo";
+
+import FileServer from "./FileServer";
+import RepoFetcher, {FetchIssue} from "./RepoFetcher";
+import {DocBuilder, BuildIssue} from "./DocBuilder";
 
 const app = express();
 const port = 3001;
 const cmd = platform === "win32" ? "npm.cmd" : "npm";
-const cmdOptions = {
-  cwd: join(__dirname, "../")
-};
-let fileServer = null;
+const fileServer = new FileServer(cmd);
+const adminToken = readFileSync(join(__dirname, "../.admin-token"), "utf-8").trim();
+const repoFetcher = new RepoFetcher(cmd);
+const docBuilder = new DocBuilder(cmd);
 
-app.get("/update", (req, res) => {
-  let {token} = req.query;
-  if (token !== "lol") {
-    res.status(401).end();
-    return;
+app.use((req, res, next) => {
+  if (!(
+    req.headers.authorization === `token ${adminToken}` ||
+    req.query.token === adminToken
+  )) {
+    return res.sendStatus(401);
   }
-  stopFileServer();
-  let updater = spawn(cmd, ["run", "update-repos"], cmdOptions);
-  updater.once("exit", () => {
-    let builder = spawn(cmd, ["run", "build"]);
-    builder.once("exit", startFileServer);
-  });
-  res.end();
+  next();
 });
 
-function startFileServer() {
-  fileServer = spawn(cmd, ["run", "serve"], cmdOptions);
-  console.log("started file server");
-}
+app.post("/update", async (req, res) => {
+  try {
+    await repoFetcher.fetchRepos();
+  }
+  catch (e) {
+    switch (e) {
+      case FetchIssue.SCRIPT:
+        res.sendStatus(500);
+        return;
+      case FetchIssue.LOCK:
+        res.sendStatus(409);
+        return;
+    }
+  }
 
-function stopFileServer() {
-  kill(fileServer.pid);
-  return "test";
-}
+  try {
+    await docBuilder.build();
+  }
+  catch (e) {
+    switch (e) {
+      case BuildIssue.SCRIPT:
+        res.sendStatus(500);
+        return;
+      case BuildIssue.LOCK:
+        res.sendStatus(409);
+        return;
+    }
+  }
 
-startFileServer();
+  res.sendStatus(200);
+});
+
+app.post("/restart", (req, res) => {
+  fileServer.restart()
+    .then(() => res.sendStatus(202))
+    .catch(() => res.sendStatus(409));
+});
+
 app.listen(port, () => {
-  console.log("Admin endpoint running at port " + port);
+  console.log("[App] admin endpoint running at port " + port);
 });
