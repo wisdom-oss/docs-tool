@@ -3,16 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "docusaurus build",
-    "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy",
-    "clear": "docusaurus clear",
     "serve": "docusaurus serve",
-    "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "build-admin": "tsc --project tsconfig.admin.json",
+    "update-repos": "node scripts/fetchRepos.js"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.14",
@@ -21,9 +16,11 @@
     "clsx": "^1.1.1",
     "docusaurus-plugin-openapi": "^0.4.2",
     "docusaurus-theme-openapi": "^0.4.2",
+    "express": "^4.17.2",
     "prism-react-renderer": "^1.2.1",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "tree-kill": "^1.2.2"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.0.0-beta.14",
