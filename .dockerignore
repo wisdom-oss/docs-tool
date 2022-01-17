@@ -1,0 +1,7 @@
+/.idea
+/.docusaurus
+/admin-out
+/build
+/node_modules
+/repos
+repos.json
