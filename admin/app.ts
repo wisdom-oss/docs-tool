@@ -32,7 +32,7 @@ app.post("/update", async (req, res) => {
   catch (e) {
     switch (e) {
       case FetchIssue.SCRIPT:
-        res.sendStatus(500);
+        res.status(500).send("Fetching failed.");
         return;
       case FetchIssue.LOCK:
         res.sendStatus(409);
@@ -46,7 +46,7 @@ app.post("/update", async (req, res) => {
   catch (e) {
     switch (e) {
       case BuildIssue.SCRIPT:
-        res.sendStatus(500);
+        res.status(500).send("Building failed.");
         return;
       case BuildIssue.LOCK:
         res.sendStatus(409);
