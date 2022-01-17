@@ -1,7 +1,3 @@
-POST http://localhost:3001/restart?token={{token}}
-
-###
-
 POST http://localhost:3001/restart
 Authorization: token {{token}}
 

@@ -19,10 +19,7 @@ const repoFetcher = new RepoFetcher(cmd);
 const docBuilder = new DocBuilder(cmd);
 
 app.use((req, res, next) => {
-  if (!(
-    req.headers.authorization === `token ${adminToken}` ||
-    req.query.token === adminToken
-  )) {
+  if (req.headers.authorization !== `token ${adminToken}`) {
     return res.sendStatus(401);
   }
   next();

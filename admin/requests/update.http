@@ -1,7 +1,3 @@
-POST http://localhost:3001/update?token={{token}}
-
-###
-
 POST http://localhost:3001/update
 Authorization: token {{token}}
 
