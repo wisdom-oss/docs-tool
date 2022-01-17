@@ -34,6 +34,7 @@ export default class RepoFetcher {
   fetchRepos() {
     return new Promise<void>((resolve, reject) => {
       if (this.lock.tryAcquire()) {
+        console.log("[RepoFetcher] fetching repos...");
         let fetcher = spawn(
           this.npmCmd,
           ["run", "update-repos"],
@@ -41,16 +42,19 @@ export default class RepoFetcher {
         );
         fetcher.once("exit", code => {
           if (code == 0) {
+            console.log("[RepoFetcher] repos successfully fetched");
             resolve();
             this.lock.release();
             return;
           }
           reject(FetchIssue.SCRIPT);
+          console.error("[RepoFetcher] fetching failed");
           this.lock.release();
           return;
         });
         return;
       }
+      console.warn("[RepoFetcher] already fetching");
       reject(FetchIssue.LOCK);
     });
   }

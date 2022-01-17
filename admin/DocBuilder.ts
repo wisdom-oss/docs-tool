@@ -34,6 +34,7 @@ export class DocBuilder {
   build() {
     return new Promise<void>((resolve, reject) => {
       if (this.lock.tryAcquire()) {
+        console.log("[DocBuilder] building docs...");
         let fetcher = spawn(
           this.npmCmd,
           ["run", "build"],
@@ -41,16 +42,19 @@ export class DocBuilder {
         );
         fetcher.once("exit", code => {
           if (code == 0) {
+            console.log("[DocBuilder] docs successfully built");
             resolve();
             this.lock.release();
             return;
           }
           reject(BuildIssue.SCRIPT);
+          console.error("[DocBuilder] build failed");
           this.lock.release();
           return;
         });
         return;
       }
+      console.warn("[DocBuilder] already building");
       reject(BuildIssue.LOCK);
     });
   }
