@@ -15,7 +15,7 @@ repos.json
 # Tokens
 .pat
 .admin-token
-/admin/request/http-client.private.env.json
+/admin/requests/http-client.private.env.json
 
 # Generated files
 .docusaurus
