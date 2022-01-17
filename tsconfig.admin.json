@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "outDir": "admin/out",
+  },
+  "files": ["admin/app.ts"]
+}
