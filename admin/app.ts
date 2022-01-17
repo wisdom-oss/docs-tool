@@ -9,6 +9,7 @@ import {platform} from "process";
 import FileServer from "./FileServer";
 import RepoFetcher, {FetchIssue} from "./RepoFetcher";
 import {DocBuilder, BuildIssue} from "./DocBuilder";
+import AwaitLock from "await-lock";
 
 const app = express();
 const port = 3001;
@@ -25,36 +26,46 @@ app.use((req, res, next) => {
   next();
 });
 
+let updateLock = new AwaitLock();
 app.post("/update", async (req, res) => {
-  try {
-    await repoFetcher.fetchRepos();
-  }
-  catch (e) {
-    switch (e) {
-      case FetchIssue.SCRIPT:
-        res.status(500).send("Fetching failed.");
-        return;
-      case FetchIssue.LOCK:
-        res.sendStatus(409);
-        return;
+  if (updateLock.tryAcquire()) {
+    try {
+      await repoFetcher.fetchRepos();
     }
-  }
-
-  try {
-    await docBuilder.build();
-  }
-  catch (e) {
-    switch (e) {
-      case BuildIssue.SCRIPT:
-        res.status(500).send("Building failed.");
-        return;
-      case BuildIssue.LOCK:
-        res.sendStatus(409);
-        return;
+    catch (e) {
+      switch (e) {
+        case FetchIssue.SCRIPT:
+          res.status(500).send("Fetching failed.");
+          updateLock.release();
+          return;
+        case FetchIssue.LOCK:
+          res.sendStatus(409);
+          updateLock.release();
+          return;
+      }
     }
-  }
 
-  res.sendStatus(200);
+    try {
+      await docBuilder.build();
+    }
+    catch (e) {
+      switch (e) {
+        case BuildIssue.SCRIPT:
+          res.status(500).send("Building failed.");
+          updateLock.release();
+          return;
+        case BuildIssue.LOCK:
+          res.sendStatus(409);
+          updateLock.release();
+          return;
+      }
+    }
+
+    res.sendStatus(200);
+    updateLock.release();
+    return;
+  }
+  res.sendStatus(409);
 });
 
 app.post("/restart", (req, res) => {
