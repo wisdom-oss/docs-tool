@@ -3,7 +3,7 @@
 
 # Production
 /build
-/admin/out
+/admin-out
 
 # Repos pulled
 /repos
@@ -12,8 +12,10 @@ repos.json
 # IDE
 .idea
 
-# Personal access token
+# Tokens
 .pat
+.admin-token
+/admin/request/http-client.private.env.json
 
 # Generated files
 .docusaurus
