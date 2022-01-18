@@ -22,6 +22,7 @@ module.exports = async function(repo, branch, pat) {
   const unzipit = await import("unzipit");
   const sanitizeMD = await import("./sanitizeMD.js");
   const HttpsProxyAgent = (await import("https-proxy-agent")).default;
+  const sanitizeFileName = (await import("./sanitizeFileName.js")).default;
 
   // define fetch function as node-fetch's fetch but add the auth header
   const fetch = function(url, init) {
@@ -59,6 +60,7 @@ module.exports = async function(repo, branch, pat) {
     // GitHub creates an archive with a directory inside it, this will skip that
     // in the filename
     let fileName = key.split("/").slice(1).join("/");
+    fileName = sanitizeFileName(fileName);
 
     // check against the filter
     if (!fileName.match(filter)) continue;
