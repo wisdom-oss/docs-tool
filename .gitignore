@@ -8,6 +8,7 @@
 # Repos pulled
 /repos
 repos.json
+/static-docs
 
 # IDE
 .idea
