@@ -21,6 +21,7 @@ const config = {
   favicon: 'img/favicon.ico',
   organizationName: 'wisdom-oss', // Usually your GitHub org/user name.
   projectName: 'WISdoM', // Usually your repo name.
+  staticDirectories: ["static", "static-docs"],
 
   plugins: [
     '@docusaurus/theme-classic',
@@ -101,8 +102,8 @@ function reposNavbar() {
   let items = [];
   for (let repo of Object.values(repos)) {
     if (repo.private) continue;
-    let {hasAPI, hasDocs, hasReadme} = repo.defaultBranch;
-    if (!(hasAPI || hasDocs || hasReadme)) continue;
+    let {hasAPI, hasDocs, hasReadme, hasStaticDocs} = repo.defaultBranch;
+    if (!(hasAPI || hasDocs || hasReadme || hasStaticDocs)) continue;
     let item = {
       label: repo.name,
       position: "left"
@@ -110,7 +111,7 @@ function reposNavbar() {
     if (hasReadme) {
       item.to = `repos/${repo.name}/${repo.defaultBranch.name}/README`;
     }
-    if (hasAPI || hasDocs) {
+    if (hasAPI || hasDocs || hasStaticDocs) {
       item.items = [];
       item.type = "dropdown";
       if (hasAPI) {
@@ -122,6 +123,12 @@ function reposNavbar() {
       if (hasDocs) {
         item.items.push({
           to: `repos/${repo.name}/${repo.defaultBranch.name}/${repo.defaultBranch.hasDocs.split(".md")[0]}`,
+          label: "Docs"
+        });
+      }
+      if (hasStaticDocs) {
+        item.items.push({
+          to: `repos/${repo.name}/${repo.defaultBranch.name}/docs`,
           label: "Docs"
         });
       }
@@ -165,6 +172,17 @@ function reposDocs() {
             id: `repos_api_${repo.name.replaceAll(/\s+/g, "_")}_${branch[0].replaceAll(/\s+/g, "_")}`,
             path: `repos/${repo.name}/${branch[0]}/${branch[1].hasAPI}`,
             routeBasePath: `repos/${repo.name}/${branch[0]}/api`
+          }
+        ])
+      }
+
+      if (branch[1].hasStaticDocs) {
+        plugins.push([
+          "@docusaurus/plugin-content-pages",
+          {
+            id: `repos_static_docs_${repo.name.replaceAll(/\s+/g, "_")}_${branch[0].replaceAll(/\s+/g, "_")}`,
+            path: "src/staticViewer",
+            routeBasePath: `repos/${repo.name}/${branch[0]}/docs`
           }
         ])
       }
