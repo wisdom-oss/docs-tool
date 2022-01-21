@@ -3,7 +3,7 @@ const githubAPI = "https://api.github.com";
 /** GitHub organization name */
 const org = "wisdom-oss";
 /** filter for the file extraction from the archive */
-const filter = /^((docs)|([^/]*api[^/]*)|([^/]*readme[^/]*))/i;
+const filter = /^(((static_)?docs)|([^/]*api[^/]*)|([^/]*readme[^/]*))/i;
 
 /**
  * This function downloads the repo data for a specific repo and branch and
@@ -47,7 +47,7 @@ module.exports = async function(repo, branch, pat) {
   // unzip the archive from the buffer
   const zipInfo = await unzipit.unzip(arrayBuffer);
 
-  let [hasDocs, hasReadme, hasAPI] = [false, false, false];
+  let [hasDocs, hasReadme, hasAPI, hasStaticDocs] = [false, false, false, false];
 
   for (let [key, entry] of Object.entries(zipInfo.entries)) {
     // iterate over every entry in the zip archive to check what should be
@@ -66,11 +66,17 @@ module.exports = async function(repo, branch, pat) {
     if (!fileName.match(filter)) continue;
 
     // filePath inside the project and create it, if necessary
-    let filePath = path.join(__dirname, "../repos", repo, branch, fileName);
+    let entryPoint = fileName.startsWith("static_docs/")
+      ? "../static-docs/static-repos"
+      : "../repos";
+    let filePath = path.join(__dirname, entryPoint, repo, branch, fileName);
     fs.mkdirSync(path.dirname(filePath), {recursive: true});
 
     // check for readmes
     if (fileName.match(/readme[^/]*$/i)) hasReadme = true;
+
+    // check for static-docs
+    if (fileName.startsWith("static_docs")) hasStaticDocs = true;
 
     // check for doc files
     if (fileName.match(/^docs\//i)) {
@@ -105,6 +111,6 @@ module.exports = async function(repo, branch, pat) {
 
   return {
     // return the metadata for the branch
-    hasAPI, hasDocs, hasReadme
+    hasAPI, hasDocs, hasReadme, hasStaticDocs
   };
 };

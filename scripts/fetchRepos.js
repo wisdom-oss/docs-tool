@@ -42,8 +42,10 @@ const org = "wisdom-oss";
   let reposJson = await reposReq.json();
 
   // remove old repo data
+  let rmOptions = {recursive: true, force: true};
   let reposPath = path.join(__dirname, "../repos");
-  fs.rmSync(reposPath, {recursive: true, force: true});
+  fs.rmSync(reposPath, rmOptions);
+  fs.rmSync(path.join(__dirname, "../static-docs"), rmOptions);
   fs.mkdirSync(reposPath, {recursive: true});
 
   // prepare repos object to be filled later
@@ -59,7 +61,8 @@ const org = "wisdom-oss";
 
       // prepare branch collection
       let branches = [];
-      let [hasAPI, hasDocs, hasReadme] = [false, false, false];
+      let [hasAPI, hasDocs, hasReadme, hasStaticDocs] =
+        [false, false, false, false];
 
       // parallelize fetching all branches
       let branchPromises = [];
@@ -74,6 +77,7 @@ const org = "wisdom-oss";
             hasAPI = has.hasAPI;
             hasDocs = has.hasDocs;
             hasReadme = has.hasReadme;
+            hasStaticDocs = has.hasStaticDocs;
           }
 
           // finalize branch thread
@@ -87,7 +91,7 @@ const org = "wisdom-oss";
         private: repo.private,
         defaultBranch: {
           name: repo.default_branch,
-          hasAPI, hasDocs, hasReadme
+          hasAPI, hasDocs, hasReadme, hasStaticDocs
         },
         branches
       };
