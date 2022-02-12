@@ -29,7 +29,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.0.0-beta.14",
     "@tsconfig/docusaurus": "^1.0.4",
-    "node-fetch": "^3.1.0",
+    "node-fetch": "^3.1.1",
     "pretty-ts-imports": "^1.0.0",
     "typescript": "^4.5.2",
     "unzipit": "^1.4.0"
