@@ -54,6 +54,9 @@ const org = "wisdom-oss";
   // parallelize fetching all repos
   let repoPromises = [];
   for (let repo of reposJson) {
+    // meta repos start with ".", these should be ignored in the docs
+    if (repo.name.startsWith(".")) continue;
+
     repoPromises.push(new Promise(async resolve => {
       // fetch all branch meta data for a specific repository
       let branchesReq = await fetch(repo.branches_url.split("{/branch}")[0]);
