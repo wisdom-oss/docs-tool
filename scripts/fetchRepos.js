@@ -67,6 +67,9 @@ const org = "wisdom-oss";
       // parallelize fetching all branches
       let branchPromises = [];
       for (let branch of branchesJson) {
+        // ignore dependabot branches, these would flood the docs
+        if (branch.name.includes("dependabot")) continue;
+
         branchPromises.push(new Promise(async resolve => {
           // fetch the branch data
           let has = await fetchRepo.default(repo.name, branch.name, pat);
