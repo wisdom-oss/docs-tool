@@ -26,3 +26,14 @@
 html[data-theme='dark'] .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.3);
 }
+
+.navbar {
+  height: fit-content;
+}
+.navbar__items {
+  flex-wrap: wrap;
+  align-self: start;
+}
+.navbar__items--right {
+  align-self: center;
+}

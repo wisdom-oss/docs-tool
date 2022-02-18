@@ -23,8 +23,11 @@ const config = {
   projectName: 'WISdoM', // Usually your repo name.
   staticDirectories: ["static", "static-docs"],
 
+  // @ts-ignore
   plugins: [
-    '@docusaurus/theme-classic',
+    ['@docusaurus/theme-classic', {
+      customCss: [require.resolve("./src/css/custom.css")]
+    }],
     //"@docusaurus/plugin-debug",
     "@docusaurus/plugin-content-pages"
     // @ts-ignore
