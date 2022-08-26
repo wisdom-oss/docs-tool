@@ -24,53 +24,39 @@ export default class Docs extends Component {
     return {repo, branch, path}
   }
 
+  interval;
+
   componentDidMount() {
-    const updateFrame = iframe => {
-      let linkElement = iframe.contentDocument.createElement("link");
-      linkElement.setAttribute("rel", "stylesheet");
-      linkElement.setAttribute("href", "/styles/compodoc.css");
-      iframe.contentDocument.head.append(linkElement);
-
-      console.log("updating height");
-      iframe.style.height = "400px";
-      let height = 0;
-      for (let el of document.body.querySelectorAll("div")) {
-        if (height < el.scrollHeight) height = el.scrollHeight;
-      }
-      iframe.style.height = height + "px";
-
-      let {repo, branch} = this.repoBranchPath;
-      for (let a of iframe.contentDocument.body.querySelectorAll("a")) {
-        a.addEventListener("click", event => {
-          event.preventDefault();
-          let path = a.href.split("/static_docs/")[1];
-          this.props.history.push({
-            pathname: `/${repo}/${branch}/docs`,
-            search: "?path=" + encodeURI(path)
-          });
-          this.props.history.go();
+    document.querySelector(".main-wrapper").style.display = "flex";
+    let oldHref = document.querySelector("iframe.static_docs").contentWindow.location.href.replaceAll(/\/+/g, "/");
+    this.interval = setInterval(() => {
+      let newHref = document.querySelector("iframe.static_docs").contentWindow.location.href.replaceAll(/\/+/g, "/");
+      if (oldHref !== newHref) {
+        oldHref = newHref;
+        this.props.history.push({
+          search: "?path=" + encodeURI(newHref.split(/static_docs/)[1])
         });
       }
-    }
+    }, 200);
+  }
 
-    let iframe = document.querySelector("iframe.static_docs");
-    if (iframe) updateFrame(iframe);
-    else window.onload = () => {
-      let iframe = document.querySelector("iframe.static_docs");
-      if (iframe) updateFrame(iframe);
-    }
+  componentWillUnmount() {
+    document.querySelector(".main-wrapper").style.display = "unset";
+    clearInterval(this.interval);
   }
 
   render() {
     let {repo, branch, path} = this.repoBranchPath;
     return (
-      <Layout>
-        <iframe
-          className="static_docs"
-          src={`/repos/${repo}/${branch}/static_docs/${path}`}
-          style={{width: "100%", minHeight: "400px"}}
-        ></iframe>
-      </Layout>
+      <>
+        <Layout noFooter={true}>
+          <iframe
+            className="static_docs"
+            src={`/repos/${repo}/${branch}/static_docs/${path}`}
+            style={{width: "100%"}}
+          ></iframe>
+        </Layout>
+      </>
     )
   }
 }
