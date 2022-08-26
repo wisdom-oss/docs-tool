@@ -24,8 +24,8 @@ var RepoGroups;
             // @ts-ignore enums are a bit wonky in that regard
             if (name.startsWith(val + "-"))
                 return RepoGroups[key];
-            return RepoGroups.OTHER;
         }
+        return RepoGroups.OTHER;
     }
     RepoGroups.findGroup = findGroup;
 })(RepoGroups || (RepoGroups = {}));
@@ -40,6 +40,13 @@ var RepoGroups;
     let plugins = buildPluginsConfig(localMeta);
     console.info("saving plugin config");
     await fs.writeFile(path.join(__dirname, "../data/repos/repos.json"), JSON.stringify(plugins, null, 2).replaceAll("\\\\", "/"));
+    console.info("constructing metadata");
+    for (let key of Object.keys(repos)) {
+        // @ts-ignore this should work
+        repos[key].branches = localMeta[key];
+    }
+    console.info("saving metadata");
+    await fs.writeFile(path.join(__dirname, "../data/repos/meta.json"), JSON.stringify(repos, null, 2).replaceAll("\\\\", "/"));
 })();
 async function fetchAllMeta() {
     let listForOrg = await octokit.rest.repos.listForOrg({
