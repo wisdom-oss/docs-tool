@@ -10,7 +10,9 @@ import FrontPageItem from "./_components/FrontPageItem";
 export default function Index(prop) {
   let [service, frontend, other] = ["service", "frontend", "other"]
     .map(g => Object.fromEntries(
-      Object.entries(meta).filter(([k, v]) => v.group === g)
+      Object.entries(meta)
+        .filter(([k, v]) => v.group === g)
+        .sort(([ka], [kb]) => ka.localeCompare(kb))
     ));
 
 

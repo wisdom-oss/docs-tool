@@ -54,7 +54,7 @@ async function fetchAllMeta() {
         per_page: 100
     });
     let reqs = [];
-    for (let { name: repoName, default_branch } of listForOrg.data)
+    for (let { name: repoName, default_branch, description, private: isPrivate } of listForOrg.data)
         reqs.push((async () => {
             let branches = (await octokit.rest.repos.listBranches({
                 owner: ORGANIZATION,
@@ -68,6 +68,8 @@ async function fetchAllMeta() {
             return {
                 displayName,
                 slug: repoName,
+                description,
+                private: isPrivate,
                 group,
                 defaultBranch: default_branch,
                 branches
@@ -116,8 +118,10 @@ async function downloadAllDocs(repoMeta) {
                     await writeZipContent(localFilePath, fileName, entry);
                     if (fileName.match(/(open)?api\.ya?ml/i))
                         localMeta[name][branch].hasApi = fileName;
-                    if (pathFragments[0] === "docs")
-                        localMeta[name][branch].hasDocs = true;
+                    if (pathFragments[0] === "docs" &&
+                        !localMeta[name][branch].hasDocs &&
+                        fileName.endsWith(".md"))
+                        localMeta[name][branch].hasDocs = [pathFragments.slice(1), fileName].flat().join("/");
                     if (pathFragments[0] === "static_docs")
                         localMeta[name][branch].hasStaticDocs = true;
                     if (fileName.match(/readme/i))
