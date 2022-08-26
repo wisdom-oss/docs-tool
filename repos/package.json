@@ -1,0 +1,19 @@
+{
+  "name": "wisdom-oss-docs-repos",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@octokit/rest": "^18.12.0",
+    "sanitize-filename": "^1.6.3",
+    "unzipit": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^4.7.4"
+  }
+}

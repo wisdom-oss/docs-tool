@@ -1,0 +1,4 @@
+:3000
+
+reverse_proxy /repos/* :3002
+reverse_proxy :3001
