@@ -5,7 +5,7 @@
   "packageManager": "pnpm@7.3.0",
   "scripts": {
     "install": "pnpm install --dir docusaurus & pnpm install --dir admin & pnpm install --dir repos",
-    "afterinstall": "cd repos && npm run build",
+    "postinstall": "cd repos && npm run build",
     "serve-static": "serve data -l tcp:0.0.0.0:3002 -c ../serve.json",
     "caddy": "caddy run",
     "start": "cd admin && npm run start"
