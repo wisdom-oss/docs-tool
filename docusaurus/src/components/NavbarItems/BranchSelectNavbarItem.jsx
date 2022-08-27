@@ -68,7 +68,7 @@ export default function BranchSelectNavbarItem(props) {
       {defaultEntry}
       {
         defaultEntry &&
-        selectEntries.length &&
+        !!selectEntries.length &&
         <li><hr style={{margin: "0.3rem 0"}}/></li>
       }
       {selectEntries}

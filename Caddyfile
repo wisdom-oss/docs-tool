@@ -1,4 +1,6 @@
 :3000
 
 reverse_proxy /repos/* :3002
+reverse_proxy /admin :3003
+reverse_proxy /admin/* :3003
 reverse_proxy :3001
