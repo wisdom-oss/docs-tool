@@ -31,52 +31,30 @@ const config = {
         logo: {
           alt: "My Site Logo",
           src: "img/logo.svg",
-        }
+        },
+        items: [
+          {
+            type: "custom-other-docs-on-branch"
+          },
+          {
+            type: "custom-branch-select",
+            position: "right"
+          }
+        ]
       },
       footer: {
         style: "dark",
         links: [
           {
-            title: "Docs",
-            items: [
-              {
-                label: "Tutorial",
-                to: "/docs/intro",
-              },
-            ],
+            label: "Github",
+            href: "https://github.com/wisdom-oss",
           },
           {
-            title: "Community",
-            items: [
-              {
-                label: "Stack Overflow",
-                href: "https://stackoverflow.com/questions/tagged/docusaurus",
-              },
-              {
-                label: "Discord",
-                href: "https://discordapp.com/invite/docusaurus",
-              },
-              {
-                label: "Twitter",
-                href: "https://twitter.com/docusaurus",
-              },
-            ],
-          },
-          {
-            title: "More",
-            items: [
-              {
-                label: "Blog",
-                to: "/blog",
-              },
-              {
-                label: "GitHub",
-                href: "https://github.com/facebook/docusaurus",
-              },
-            ],
-          },
+            label: "Demo",
+            href: "https://wisdom-demo.uni-oldenburg.de"
+          }
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} WISdoM`,
       },
       prism: {
         theme: lightCodeTheme,

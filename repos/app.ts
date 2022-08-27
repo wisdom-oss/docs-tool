@@ -90,6 +90,11 @@ async function fetchAllMeta(): Promise<Record<string, {
     if (group !== RepoGroups.OTHER) {
       displayName = displayName.slice(group.length + 1);
     }
+
+    let sanitizedBranchNames = Object.fromEntries(branches.map(b => [
+      sanitize(b.replaceAll("/", "")), b
+    ]));
+
     return {
       displayName,
       slug: repoName,
@@ -97,7 +102,8 @@ async function fetchAllMeta(): Promise<Record<string, {
       private: isPrivate,
       group,
       defaultBranch: default_branch,
-      branches
+      branches,
+      sanitizedBranchNames
     };
   })())
 
@@ -114,6 +120,7 @@ async function downloadAllDocs(
 ) {
   let localMeta = Object.fromEntries(Object.entries(repoMeta).map(([key, val]) => {
     return [key, Object.fromEntries(val.branches.map(b => [b, {
+      sanitizedName: sanitize(b.replaceAll("/", "")),
       hasDocs: false as boolean | string,
       hasDocsSidebar: undefined as undefined | string,
       hasStaticDocs: false as boolean | string,
