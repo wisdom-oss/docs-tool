@@ -8,7 +8,6 @@ export default function OtherDocsOnBranchNavbarItem(props) {
   const location = useLocation();
 
   let match = getCurrentSelection(location.pathname);
-  console.log(match);
   if (!match) return null;
   let {repo, branch: sanitizedBranch, group, rest} = match;
   let branch = meta[repo].sanitizedBranchNames[sanitizedBranch];

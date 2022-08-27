@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "@docusaurus/Link";
+import IconExternalLink from '@theme/Icon/ExternalLink';
 
 function createDropdown(
   props,
@@ -109,7 +110,15 @@ export default function FrontPageItem(props) {
           justifyContent: "space-between",
           alignItems: "baseline"
         }}>
-          <h3>{props.displayName}</h3>
+          <h3>
+            <Link
+              href={"https://github.com/wisdom-oss/" + props.slug}
+              className="navbar__link"
+            >
+              {props.displayName}
+              <IconExternalLink></IconExternalLink>
+            </Link>
+          </h3>
           {
             props.private &&
             <span
