@@ -11,6 +11,6 @@
     "await-lock": "^2.2.2",
     "express": "^4.18.1",
     "is-windows": "^1.0.2",
-    "kill-with-style": "^1.1.0"
+    "tree-kill": "^1.2.2"
   }
 }

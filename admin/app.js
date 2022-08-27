@@ -8,7 +8,8 @@ import startStaticFileserver from "./cmd/static.js";
 import startDocusaurusServer from "./cmd/docusaurus-serve.js";
 import buildDocs from "./cmd/docusaurus-build.js";
 import AwaitLock from "await-lock";
-import kill from "kill-with-style";
+import kill from "tree-kill";
+import isWindows from "is-windows";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -49,33 +50,46 @@ app.put(/admin.*/, async (req, res) => {
     try {
       console.info("[Admin] killing servers now");
 
-      await new Promise((resolve, reject) => kill(
-        staticFileServer.pid,
-        {
-          signal: ["SIGINT", "SIGKILL"],
-          retryCount: 5,
-          retryInterval: 10000,
-          timeout: 11000
-        },
-        err => {
-          if (err) return reject(err);
-          resolve();
-        })
-      );
+      kill(staticFileServer.pid);
+      kill(docusaurusServer.pid);
 
-      await new Promise((resolve, reject) => kill(
-        docusaurusServer.pid,
-        {
-          signal: ["SIGINT", "SIGKILL"],
-          retryCount: 5,
-          retryInterval: 10000,
-          timeout: 11000
-        },
-        err => {
-          if (err) return reject(err);
-          resolve();
-        })
-      );
+      // if (isWindows()) {
+      //   await new Promise((resolve, reject) => kill(
+      //     staticFileServer.pid,
+      //     {
+      //       signal: ["SIGINT", "SIGKILL"],
+      //       retryCount: 5,
+      //       retryInterval: 10000,
+      //       timeout: 11000
+      //     },
+      //     err => {
+      //       if (err) return reject(err);
+      //       resolve();
+      //     })
+      //   );
+      //
+      //   await new Promise((resolve, reject) => kill(
+      //     docusaurusServer.pid,
+      //     {
+      //       signal: ["SIGINT", "SIGKILL"],
+      //       retryCount: 5,
+      //       retryInterval: 10000,
+      //       timeout: 100000
+      //     },
+      //     err => {
+      //       if (err) return reject(err);
+      //       resolve();
+      //     })
+      //   );
+      // }
+      // else {
+      //   while (!staticFileServer.kill()) {
+      //     console.info("[Admin] trying to kill static file server");
+      //   }
+      //   while (!docusaurusServer.kill()) {
+      //     console.info("[Admin] trying to kill docusaurus server");
+      //   }
+      // }
 
       console.info("[Admin] updating docs");
       await updateRepos();
