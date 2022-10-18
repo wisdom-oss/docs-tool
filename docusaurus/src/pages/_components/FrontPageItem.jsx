@@ -122,7 +122,7 @@ export default function FrontPageItem(props) {
           {
             props.private &&
             <span
-              className="badge"
+              className="badge badge--secondary"
               style={{border: "rgba(0, 0, 0, 0.6) 1px solid"}}
             >private</span>
           }
