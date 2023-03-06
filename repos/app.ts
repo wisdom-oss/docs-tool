@@ -1,11 +1,12 @@
 import {Octokit} from "@octokit/rest";
-import fs from "fs/promises";
+import fsPromises from "fs/promises";
+import fs from "fs";
 import path from "path";
 import {unzip, ZipEntry} from "unzipit";
 import {fileURLToPath} from "url";
 import sanitize from "sanitize-filename";
 
-const USER_AGENT = "wisdom-oss-docs";
+const USER_AGENT = "@wisdom-oss/docs-tool";
 const ORGANIZATION = "wisdom-oss";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -42,9 +43,9 @@ type slug = string;
   console.info("downloading all docs");
   let localMeta = await downloadAllDocs(repos);
   console.info("constructing plugin config");
-  let plugins = buildPluginsConfig(localMeta);
+  let [plugins, docsList] = buildPluginsConfig(localMeta);
   console.info("saving plugin config");
-  await fs.writeFile(
+  await fsPromises.writeFile(
     path.join(__dirname, "../data/repos/repos.json"),
     JSON.stringify(plugins, null, 2).replaceAll("\\\\", "/")
   );
@@ -54,11 +55,16 @@ type slug = string;
     repos[key].branches = localMeta[key];
   }
   console.info("saving metadata");
-  await fs.writeFile(
+  await fsPromises.writeFile(
     path.join(__dirname, "../data/repos/meta.json"),
     JSON.stringify(repos, null, 2).replaceAll("\\\\", "/")
-  )
-
+  );
+  console.info("saving global docs list");
+  await fsPromises.writeFile(
+    path.join(__dirname, "../data/repos/docs.json"),
+    JSON.stringify(docsList, null, 2).replaceAll("\\\\", "/")
+  );
+  console.info("done");
 })();
 
 async function fetchAllMeta(): Promise<Record<string, {
@@ -111,8 +117,8 @@ async function fetchAllMeta(): Promise<Record<string, {
 }
 
 async function clearDataDir() {
-  await fs.rm(path.join(__dirname, "../data/repos"), {force: true, recursive: true});
-  await fs.mkdir(path.join(__dirname, "../data/repos"), {recursive: true});
+  await fsPromises.rm(path.join(__dirname, "../data/repos"), {force: true, recursive: true});
+  await fsPromises.mkdir(path.join(__dirname, "../data/repos"), {recursive: true});
 }
 
 async function downloadAllDocs(
@@ -148,7 +154,7 @@ async function downloadAllDocs(
           !pathFragments[0] ||
           pathFragments[0] === "docs" ||
           pathFragments[0] === "static_docs"
-        )) continue;
+        ) && name !== "docs") continue; // completely keep "docs" repo
         let localFilePath = path.join(
           __dirname,
           "../data/repos",
@@ -160,6 +166,7 @@ async function downloadAllDocs(
 
         await writeZipContent(localFilePath, fileName, entry);
 
+        if (name === "docs") continue; // skip meta for "docs" repo
         if (fileName.match(/(open)?api\.ya?ml/i)) localMeta[name][branch].hasApi = fileName;
         if (
           pathFragments[0] === "docs" &&
@@ -185,11 +192,11 @@ function sanitizeFileName(fileName: string) {
 
 
 async function writeZipContent(filePath: string, fileName: string, entry: ZipEntry) {
-  if (fileName.match(/readme/i)) {
+  if (entry.name.split("/").slice(1).join("/").match(/^readme/i)) {
     let readmeFilePath = filePath.split(fileName)[0] + "/readme/" + fileName;
-    await fs.mkdir(path.dirname(readmeFilePath), {recursive: true});
+    await fsPromises.mkdir(path.dirname(readmeFilePath), {recursive: true});
     // sanitize html in README
-    await fs.writeFile(
+    await fsPromises.writeFile(
       readmeFilePath,
       (await entry.text())
         .replaceAll("<br>", "<br/>")
@@ -197,8 +204,8 @@ async function writeZipContent(filePath: string, fileName: string, entry: ZipEnt
     );
   }
   else {
-    await fs.mkdir(path.dirname(filePath), {recursive: true});
-    await fs.writeFile(filePath, Buffer.from(await entry.arrayBuffer()));
+    await fsPromises.mkdir(path.dirname(filePath), {recursive: true});
+    await fsPromises.writeFile(filePath, Buffer.from(await entry.arrayBuffer()));
   }
 }
 
@@ -214,8 +221,41 @@ function buildPluginsConfig(
   }
 
   let plugins = [];
+  let docsList = {};
   for (let [name, branches] of Object.entries(docsMeta)) {
     for (let [branch, meta] of Object.entries(branches)) {
+      // handle "docs" repo differently
+      if (name == "docs") {
+        docsList[branch] = {};
+
+        let dir = fs.readdirSync("../data/repos/docs/" + sanitize(branch));
+        for (let direntName of dir) {
+          // only include directories that have a sidebar.json
+          if (!fs.existsSync(
+              `../data/repos/docs/${sanitize(branch)}/${direntName}/sidebar.json`
+          )) continue;
+
+          let routeBasePath = path.join(
+              sanitize(name),
+              sanitize(branch),
+              direntName
+          );
+          docsList[branch][direntName] = routeBasePath;
+
+          plugins.push(["@docusaurus/plugin-content-docs", {
+            path: `../data/repos/docs/${sanitize(branch)}/${direntName}`,
+            routeBasePath,
+            sidebarPath: `../data/repos/docs/${sanitize(branch)}/${direntName}/sidebar.json`,
+            sidebarCollapsed: false,
+            include: ["**/*.md"],
+            id: sanitizeId(`docs::${name}::${branch}::${direntName}`)
+          }])
+        }
+
+        // ignore other features for the "docs" repo
+        continue;
+      }
+
       if (meta.hasReadMe) {
         plugins.push(["@docusaurus/plugin-content-pages", {
           path: path.join(
@@ -274,5 +314,5 @@ function buildPluginsConfig(
       }
     }
   }
-  return plugins;
+  return [plugins, docsList];
 }
