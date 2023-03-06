@@ -5,6 +5,7 @@ import Heading from "@theme/Heading";
 import React from "react";
 
 import meta from "../../../data/repos/meta.json";
+import docs from "../../../data/repos/docs.json";
 import FrontPageItem from "./_components/FrontPageItem";
 
 export default function Index(prop) {
@@ -51,6 +52,21 @@ export default function Index(prop) {
     return groupRows;
   }
 
+  function globalDocs() {
+    let docsMeta = meta.docs;
+    let categories = docs[docsMeta.defaultBranch];
+    let globalDocsRow = [];
+    for (let [name, path] of Object.entries(categories)) {
+      globalDocsRow.push(
+        <div
+          className="row"
+          key={"group" + groupRowCounter++}
+        ><a href={path}>{name}</a></div>
+      )
+    }
+    return globalDocsRow;
+  }
+
   return (
     <Layout>
       <div className="container">
@@ -62,6 +78,10 @@ export default function Index(prop) {
           }}
           className="padding--lg"
         >WISdoM OSS Docs</h1>
+
+        <div className="padding-bottom--xl">
+          {globalDocs()}
+        </div>
 
         <div className="padding-bottom--xl">
           <h1>Services</h1>
