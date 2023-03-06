@@ -1,5 +1,5 @@
 {
-  "name": "wisdom-oss-docs-repos",
+  "name": "@wisdom-oss/docs-tool-repos",
   "version": "1.0.0",
   "private": true,
   "type": "module",

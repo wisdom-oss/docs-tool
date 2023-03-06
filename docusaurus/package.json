@@ -1,5 +1,5 @@
 {
-  "name": "wisdom-oss-docs-docusaurus",
+  "name": "@wisdom-oss/docs-tool-docusaurus",
   "version": "0.0.0",
   "private": true,
   "scripts": {
