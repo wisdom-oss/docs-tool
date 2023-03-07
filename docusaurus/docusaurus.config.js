@@ -34,6 +34,9 @@ const config = {
         },
         items: [
           {
+            type: "custom-other-global-docs"
+          },
+          {
             type: "custom-other-docs-on-branch"
           },
           {

@@ -18,10 +18,11 @@ const octokit = new Octokit({
 });
 
 enum RepoGroups {
-  SERVICE =  "service",
+  SERVICE = "service",
   FRONTEND = "frontend",
   OTHER = "other"
 }
+
 namespace RepoGroups {
   export function findGroup(name: string) {
     for (let [key, val] of Object.entries(RepoGroups)) {
@@ -43,7 +44,7 @@ type slug = string;
   console.info("downloading all docs");
   let localMeta = await downloadAllDocs(repos);
   console.info("constructing plugin config");
-  let [plugins, docsList] = buildPluginsConfig(localMeta);
+  let plugins = buildPluginsConfig(localMeta);
   console.info("saving plugin config");
   await fsPromises.writeFile(
     path.join(__dirname, "../data/repos/repos.json"),
@@ -59,11 +60,8 @@ type slug = string;
     path.join(__dirname, "../data/repos/meta.json"),
     JSON.stringify(repos, null, 2).replaceAll("\\\\", "/")
   );
-  console.info("saving global docs list");
-  await fsPromises.writeFile(
-    path.join(__dirname, "../data/repos/docs.json"),
-    JSON.stringify(docsList, null, 2).replaceAll("\\\\", "/")
-  );
+  console.info("copying global docs list");
+  copyMainDocsList(repos);
   console.info("done");
 })();
 
@@ -202,8 +200,7 @@ async function writeZipContent(filePath: string, fileName: string, entry: ZipEnt
         .replaceAll("<br>", "<br/>")
         .replaceAll("<hr>", "<hr/>")
     );
-  }
-  else {
+  } else {
     await fsPromises.mkdir(path.dirname(filePath), {recursive: true});
     await fsPromises.writeFile(filePath, Buffer.from(await entry.arrayBuffer()));
   }
@@ -221,34 +218,22 @@ function buildPluginsConfig(
   }
 
   let plugins = [];
-  let docsList = {};
   for (let [name, branches] of Object.entries(docsMeta)) {
     for (let [branch, meta] of Object.entries(branches)) {
       // handle "docs" repo differently
       if (name == "docs") {
-        docsList[branch] = {};
-
-        let dir = fs.readdirSync("../data/repos/docs/" + sanitize(branch));
-        for (let direntName of dir) {
-          // only include directories that have a sidebar.json
-          if (!fs.existsSync(
-              `../data/repos/docs/${sanitize(branch)}/${direntName}/sidebar.json`
-          )) continue;
-
-          let routeBasePath = path.join(
-              sanitize(name),
-              sanitize(branch),
-              direntName
-          );
-          docsList[branch][direntName] = routeBasePath;
-
+        let docsList = JSON.parse(fs.readFileSync(
+          `../data/repos/docs/${sanitize(branch)}/docs.json`,
+          "utf-8"
+        ));
+        for (let {path: localPath, label, description, sidebar} of docsList) {
           plugins.push(["@docusaurus/plugin-content-docs", {
-            path: `../data/repos/docs/${sanitize(branch)}/${direntName}`,
-            routeBasePath,
-            sidebarPath: `../data/repos/docs/${sanitize(branch)}/${direntName}/sidebar.json`,
+            path: `../data/repos/docs/${sanitize(branch)}/${localPath}`,
+            routeBasePath: path.join(sanitize(name), sanitize(branch), "docs", localPath),
+            sidebarPath: `../data/repos/docs/${sanitize(branch)}/${localPath}/${sidebar}`,
             sidebarCollapsed: false,
             include: ["**/*.md"],
-            id: sanitizeId(`docs::${name}::${branch}::${direntName}`)
+            id: sanitizeId(`docs::${name}::${branch}::${localPath}`)
           }])
         }
 
@@ -314,5 +299,20 @@ function buildPluginsConfig(
       }
     }
   }
-  return [plugins, docsList];
+  return plugins;
+}
+
+function copyMainDocsList(repoMeta: Awaited<ReturnType<typeof fetchAllMeta>>) {
+  fs.copyFileSync(
+    path.join(
+      __dirname,
+      "../data/repos/docs",
+      repoMeta.docs.defaultBranch,
+      "docs.json"
+    ),
+    path.join(
+      __dirname,
+      "../data/repos/docs.json"
+    )
+  );
 }

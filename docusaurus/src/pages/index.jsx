@@ -7,6 +7,7 @@ import React from "react";
 import meta from "../../../data/repos/meta.json";
 import docs from "../../../data/repos/docs.json";
 import FrontPageItem from "./_components/FrontPageItem";
+import Link from "@docusaurus/Link";
 
 export default function Index(prop) {
   let [service, frontend, other] = ["service", "frontend", "other"]
@@ -53,18 +54,35 @@ export default function Index(prop) {
   }
 
   function globalDocs() {
-    let docsMeta = meta.docs;
-    let categories = docs[docsMeta.defaultBranch];
-    let globalDocsRow = [];
-    for (let [name, path] of Object.entries(categories)) {
-      globalDocsRow.push(
+    let row = [];
+    for (let {path, label, description} of docs) {
+      row.push(
         <div
-          className="row"
-          key={"group" + groupRowCounter++}
-        ><a href={path}>{name}</a></div>
+          className="col"
+          key={"item" + groupItemCounter++}
+        >
+          <div className="card">
+            <div className="card__header">
+              <h3>
+                <Link
+                  href={`/docs/${meta.docs.defaultBranch}/docs/${path}`}
+                  className="navbar__link"
+                >
+                  {label}
+                </Link>
+              </h3>
+            </div>
+            <div className="card__body">
+              {description}
+            </div>
+          </div>
+        </div>
       )
     }
-    return globalDocsRow;
+    return <div
+      className="row"
+      key={"group" + groupRowCounter++}
+    >{row}</div>;
   }
 
   return (
