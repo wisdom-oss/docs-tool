@@ -10,7 +10,7 @@ documentation, and update it as necessary.
 
 The WISdoM OSS Docs-Tool consists of three parts:
 
-### repos
+### [repos](repos/README.md)
 
 Fetches information about all the repositories in the organization wisdom-oss on
 GitHub, and downloads all the documentation files from each repository's
@@ -18,14 +18,14 @@ branches.
 It then constructs a configuration for Docusaurus plugins that will be used to
 build the final documentation website.
 
-### docusaurus
+### [docusaurus](docusaurus/README.md)
 
 The main rendering tool for all the documentation that is part of the WISdoM OSS
 organization.
 It uses [Docusaurus](https://docusaurus.io), a documentation tool created by 
 Facebook, to generate documentation sites.
 
-### admin
+### [admin](admin/README.md)
 
 A Node.js application that manages all the other components and serves as the
 main entry point for the compiled documentation.
