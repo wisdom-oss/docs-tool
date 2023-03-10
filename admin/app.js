@@ -1,7 +1,6 @@
 import express from "express";
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import {spawn} from "child_process";
+import {fileURLToPath} from 'url';
+import {dirname} from 'path';
 import startCaddy from "./cmd/caddy.js";
 import updateRepos from "./cmd/repos.js";
 import startStaticFileserver from "./cmd/static.js";
@@ -9,7 +8,6 @@ import startDocusaurusServer from "./cmd/docusaurus-serve.js";
 import buildDocs from "./cmd/docusaurus-build.js";
 import AwaitLock from "await-lock";
 import kill from "tree-kill";
-import isWindows from "is-windows";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -52,45 +50,7 @@ app.put(/admin.*/, async (req, res) => {
 
       kill(staticFileServer.pid);
       kill(docusaurusServer.pid);
-
-      // if (isWindows()) {
-      //   await new Promise((resolve, reject) => kill(
-      //     staticFileServer.pid,
-      //     {
-      //       signal: ["SIGINT", "SIGKILL"],
-      //       retryCount: 5,
-      //       retryInterval: 10000,
-      //       timeout: 11000
-      //     },
-      //     err => {
-      //       if (err) return reject(err);
-      //       resolve();
-      //     })
-      //   );
-      //
-      //   await new Promise((resolve, reject) => kill(
-      //     docusaurusServer.pid,
-      //     {
-      //       signal: ["SIGINT", "SIGKILL"],
-      //       retryCount: 5,
-      //       retryInterval: 10000,
-      //       timeout: 100000
-      //     },
-      //     err => {
-      //       if (err) return reject(err);
-      //       resolve();
-      //     })
-      //   );
-      // }
-      // else {
-      //   while (!staticFileServer.kill()) {
-      //     console.info("[Admin] trying to kill static file server");
-      //   }
-      //   while (!docusaurusServer.kill()) {
-      //     console.info("[Admin] trying to kill docusaurus server");
-      //   }
-      // }
-
+      
       console.info("[Admin] updating docs");
       await updateRepos();
       staticFileServer = startStaticFileserver();
@@ -99,16 +59,13 @@ app.put(/admin.*/, async (req, res) => {
 
       console.info("[Admin] update done");
       res.sendStatus(200);
-    }
-    catch (e) {
+    } catch (e) {
       console.error(e);
       res.sendStatus(500);
-    }
-    finally {
+    } finally {
       lock.release();
     }
-  }
-  else res.sendStatus(202);
+  } else res.sendStatus(202);
 });
 
 app.listen(3003);

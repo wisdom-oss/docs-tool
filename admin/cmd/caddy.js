@@ -25,8 +25,7 @@ export default function startCaddy() {
           msg,
           JSON.stringify(rest)
         ].join(" "));
-      }
-      catch (e) {
+      } catch (e) {
         console.info("[Caddy] " + date);
       }
     }
