@@ -2,8 +2,8 @@
 
 This is the main rendering tool for all the documentation that is part of the 
 WISdoM OSS organization. 
-It uses Docusaurus, a documentation tool created by Facebook, to generate 
-documentation sites.
+It uses [Docusaurus](https://docusaurus.io), a documentation tool created by 
+Facebook, to generate documentation sites.
 
 The plugin configuration of this Docusaurus instance is highly customized using 
 a lot of generation from the `repos` part of the docs tool. 
