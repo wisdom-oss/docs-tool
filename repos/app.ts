@@ -125,10 +125,11 @@ async function downloadAllDocs(
   let localMeta = Object.fromEntries(Object.entries(repoMeta).map(([key, val]) => {
     return [key, Object.fromEntries(val.branches.map(b => [b, {
       sanitizedName: sanitize(b.replaceAll("/", "")),
+      readmes: [] as string[],
+      hasReadMe: false as boolean | string,
       hasDocs: false as boolean | string,
       hasDocsSidebar: undefined as undefined | string,
       hasStaticDocs: false as boolean | string,
-      hasReadMe: false as boolean | string,
       hasApi: false as boolean | string
     }]))];
   }));
@@ -147,11 +148,12 @@ async function downloadAllDocs(
         if (entry.name.endsWith("/")) continue;
         let pathFragments = entry.name.split("/");
         pathFragments.shift();
-        let fileName = sanitizeFileName(pathFragments.pop());
+        let fileName = pathFragments.pop();
         if (!(
           !pathFragments[0] ||
           pathFragments[0] === "docs" ||
-          pathFragments[0] === "static_docs"
+          pathFragments[0] === "static_docs" ||
+          entry.name.match(/readme/i) // keep all readmes
         ) && name !== "docs") continue; // completely keep "docs" repo
         let localFilePath = path.join(
           __dirname,
@@ -172,7 +174,14 @@ async function downloadAllDocs(
           fileName.endsWith(".md")
         ) localMeta[name][branch].hasDocs = [pathFragments.slice(1), fileName].flat().join("/");
         if (pathFragments[0] === "static_docs") localMeta[name][branch].hasStaticDocs = true;
-        if (fileName.match(/readme/i)) localMeta[name][branch].hasReadMe = fileName;
+        if (fileName.match(/readme/i)) {
+          localMeta[name][branch].readmes.push(
+            pathFragments.concat([fileName]).join("/")
+          );
+          if (!localMeta[name][branch].hasReadMe) {
+            localMeta[name][branch].hasReadMe = fileName
+          }
+        }
         if (fileName.match(/sidebar[^/]+json/i)) localMeta[name][branch].hasDocsSidebar = fileName;
       }
     })());
@@ -181,29 +190,27 @@ async function downloadAllDocs(
   return localMeta;
 }
 
-function sanitizeFileName(fileName: string) {
-  // if (fileName.endsWith(".md")) {
-  //   return fileName.match(/_*(?<base>[^_].+[^_])_*\.md/).groups.base + ".md";
-  // }
-  return fileName;
-}
-
-
 async function writeZipContent(filePath: string, fileName: string, entry: ZipEntry) {
-  if (entry.name.split("/").slice(1).join("/").match(/^readme/i)) {
-    let readmeFilePath = filePath.split(fileName)[0] + "/readme/" + fileName;
-    await fsPromises.mkdir(path.dirname(readmeFilePath), {recursive: true});
-    // sanitize html in README
-    await fsPromises.writeFile(
-      readmeFilePath,
-      (await entry.text())
-        .replaceAll("<br>", "<br/>")
-        .replaceAll("<hr>", "<hr/>")
-    );
-  } else {
-    await fsPromises.mkdir(path.dirname(filePath), {recursive: true});
-    await fsPromises.writeFile(filePath, Buffer.from(await entry.arrayBuffer()));
+  const entryPath = entry.name.split("/").slice(1).join("/");
+  const entryIsMd = fileName.endsWith(".md");
+  const entryIsReadme = !!entryPath.match(/readme\.md$/i);
+  const entryIsDocs = !!entry.name.match(new RegExp(
+    `^${ORGANIZATION}-docs-[a-zA-Z0-9]+/.*`
+  ));
+
+  const normalizedFilePath = filePath.split(path.sep).join("/");
+
+  let writePath = filePath;
+  if (entryIsReadme && !entryIsDocs) {
+    writePath = normalizedFilePath.split(entryPath)[0] + "readme/" + entryPath;
   }
+  let content: Buffer | string = Buffer.from(await entry.arrayBuffer());
+  if (entryIsMd) content = rebuildKnownLink(await entry.text())
+    .replaceAll("<br>", "<br/>")
+    .replaceAll("<hr>", "<hr/>");
+
+  await fsPromises.mkdir(path.dirname(writePath), {recursive: true});
+  await fsPromises.writeFile(writePath, content);
 }
 
 function buildPluginsConfig(
@@ -250,7 +257,6 @@ function buildPluginsConfig(
             "readme"
           ),
           routeBasePath: path.join(sanitize(name), sanitize(branch), "readme"),
-          include: [meta.hasReadMe],
           id: sanitizeId(`readme::${name}::${branch}`)
         }]);
       }
@@ -263,13 +269,6 @@ function buildPluginsConfig(
             sanitize(branch),
             "docs"
           ),
-          // sidebarPath: meta.hasDocsSidebar ? path.join(
-          //   "../data/repos",
-          //   sanitize(name),
-          //   sanitize(branch),
-          //   "docs",
-          //   meta.hasDocsSidebar
-          // ) : undefined,
           include: ["**/*.md"],
           exclude: [],
           routeBasePath: path.join(sanitize(name), sanitize(branch), "docs"),
@@ -315,4 +314,19 @@ function copyMainDocsList(repoMeta: Awaited<ReturnType<typeof fetchAllMeta>>) {
       "../data/repos/docs.json"
     )
   );
+}
+
+function rebuildKnownLink(entryText: string): string {
+  return entryText
+    .replaceAll(
+      /([^!])\[([^[\]]+)\]\(([^()]+?)(?:\.md)?\)/gi,
+      '$1<a href="$3">$2</a>'
+    )
+    .replaceAll(
+      new RegExp(
+        `(?:https://)?(?:www\\.)?github.com/${ORGANIZATION}/([^/]+)/blob/([^/]+)/(.+?)(?:\\.md)`,
+        "gi"
+      ),
+      "/$1/$2/$3"
+    );
 }

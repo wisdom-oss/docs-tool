@@ -38,11 +38,45 @@ export default function OtherDocsOnBranchNavbarItem(props) {
     "", repo, sanitizedBranch, "api", ""
   ].join("/");
 
-  return <div>
-    {
-      branchMeta?.hasReadMe &&
-      <Link to={readmeTo()} className={classes("readme")}>README</Link>
+  let readmes = () => {
+    if (!branchMeta?.hasReadMe) return null
+    if (branchMeta?.readmes.length === 1) {
+      return <Link to={readmeTo()} className={classes("readme")}>README</Link>
     }
+
+    let showPath = (path) => {
+      let pathSplit = path.split("/");
+      let last = pathSplit.pop();
+      pathSplit.push(last.toUpperCase());
+      return pathSplit.join("/");
+    }
+
+    let readmes = [];
+    for (let readme of branchMeta?.readmes) {
+      let noExtName = readme.split(".md")[0];
+      readmes.push(<li key={readme}>
+        <Link className={[
+          "dropdown__link",
+          rest === noExtName ? "dropdown__link--active" : ""
+        ].join(" ")} to={[
+          "",
+          repo,
+          sanitizedBranch,
+          group,
+          noExtName
+        ].join("/")}>{showPath(noExtName)}</Link>
+      </li>)
+    }
+
+    return <div className="dropdown dropdown--hoverable">
+      <span className="navbar__link">{showPath(rest)}</span>
+      <ul className="dropdown__menu">{readmes}</ul>
+    </div>;
+  }
+
+
+  return <div>
+    {readmes()}
     {
       branchMeta?.hasDocs &&
       <Link to={docsTo()} className={classes("docs")}>Docs</Link>
