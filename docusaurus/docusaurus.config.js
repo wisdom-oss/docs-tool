@@ -16,8 +16,13 @@ const config = {
 
   themes: [
     "@docusaurus/theme-classic",
-    "docusaurus-theme-redoc"
+    "docusaurus-theme-redoc",
+    "@docusaurus/theme-mermaid"
   ],
+
+  markdown: {
+    mermaid: true
+  },
 
   themeConfig:
     ({
