@@ -50,7 +50,7 @@ app.put(/admin.*/, async (req, res) => {
 
       kill(staticFileServer.pid);
       kill(docusaurusServer.pid);
-      
+
       console.info("[Admin] updating docs");
       await updateRepos();
       staticFileServer = startStaticFileserver();
