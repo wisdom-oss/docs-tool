@@ -40,3 +40,39 @@ documentation, and where the documentation files are located.
 It also saves the `docs.json` of the default branch of the `docs` repository, 
 which will be used at the top of the documentation website as entry points for 
 an overview of the whole application.
+
+## Authentication
+
+To ensure that the tool can fetch information about the repositories on GitHub 
+multiple times a day, you need to set the `GITHUB_SECRET` environment variable. 
+This variable will store the personal access token (PAT) you generate on GitHub, 
+which the tool uses to authenticate with the GitHub REST API.
+
+To set the GITHUB_SECRET environment variable, follow these steps:
+
+1. Go to the GitHub website and sign in to your account.
+2. Click on your profile picture in the top-right corner, and then click on 
+   "Settings."
+3. In the left-hand menu, click on "Developer settings," and then click on 
+   "Personal access tokens."
+4. Click on "Generate new token," and then follow the prompts to generate a new
+   token. 
+   Be sure to give the token the appropriate permissions to access the 
+   repositories in the wisdom-oss organization.
+5. Copy the generated token.
+6. In your local environment, set the `GITHUB_SECRET` environment variable to 
+   the value of the copied token. 
+
+For example, if you're using a Unix-based terminal, you can set the 
+`GITHUB_SECRET` variable by running the following command in the terminal:
+
+```bash
+export GITHUB_SECRET=YOUR_GENERATED_TOKEN
+```
+
+Make sure to replace `YOUR_GENERATED_TOKEN` with the actual token you generated 
+on the GitHub website.
+
+By setting the `GITHUB_SECRET` environment variable, you can ensure that the 
+tool can fetch the latest information about the repositories
+
