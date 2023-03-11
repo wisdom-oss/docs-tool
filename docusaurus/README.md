@@ -18,3 +18,35 @@ documentation module allows for quick switching between branches.
 In cases where a repository cannot generate markdown documentation, a custom 
 wrapper is created to display statically generated web pages.
 
+## Plugins
+
+This Docusaurus instance uses the following plugins to render graphs and API 
+documentation:
+
+- [Mermaid via @docusaurus/theme-mermaid](https://docusaurus.io/docs/next/api/themes/@docusaurus/theme-mermaid) - 
+  a JavaScript-based diagramming and charting tool used to create flowcharts, 
+  sequence diagrams, and other types of diagrams directly in Markdown files. 
+  Mermaid is used to render graphs in the documentation.
+
+- [Redoc via redocusaurus](https://github.com/rohit-gohri/redocusaurus) - 
+  an open-source API documentation tool used to generate interactive API 
+  documentation from OpenAPI (formerly Swagger) specification files. 
+  Redoc is used to render API documentation in the documentation.
+
+## Swizzled Components
+
+A few Navbar items have been customized to provide extra functionality to the 
+documentation site:
+
+- `BranchSelectNavbarItem.jsx` - A custom dropdown in the top right corner of 
+  every documentation module that allows for quick switching between branches.
+
+- `OtherDocsOnBranchNavbarItem.jsx` - Links to README, Docs, and API (if 
+  available) for the current repository and branch.
+
+- `OtherGlobalDocsNavbarItem.jsx` - Links to other documentation categories in 
+  the Docs repository.
+
+*Please note that these swizzled components may break or require updates in the 
+future as Docusaurus evolves.*
+
