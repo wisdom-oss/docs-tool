@@ -13,6 +13,7 @@ export default function BranchSelectNavbarItem(props) {
   let branch = meta[repo].sanitizedBranchNames[sanitizedBranch];
 
   let validBranches = Object.entries(meta[repo].branches).filter(([k, b]) => {
+    if (repo === "docs") return true;
     switch (group) {
       case "readme": return b.hasReadMe;
       case "docs": return b.hasDocs || b.hasStaticDocs;
