@@ -317,11 +317,7 @@ function copyMainDocsList(repoMeta: Awaited<ReturnType<typeof fetchAllMeta>>) {
 }
 
 function rebuildKnownLink(entryText: string): string {
-  return entryText
-    .replaceAll(
-      /([^!])\[([^[\]]+)\]\(([^()]+?)(?:\.md)?\)/gi,
-      '$1<a href="$3">$2</a>'
-    )
+  let linksReplace = entryText
     .replaceAll(
       new RegExp(
         `(?:https://)?(?:www\\.)?github.com/${ORGANIZATION}/([^/]+)/blob/([^/]+)/(.+?)(?:\\.md)`,
@@ -329,4 +325,19 @@ function rebuildKnownLink(entryText: string): string {
       ),
       "/$1/$2/$3"
     );
+
+  let output = [];
+  for (let line of linksReplace.split("\n")) {
+    if (!line.startsWith("#")) {
+      output.push(line);
+      continue;
+    }
+
+    output.push(line.replaceAll(
+      /([^!])\[([^[\]]+)\]\(([^()]+?)(?:\.md)?\)/gi,
+      '$1<a href="$3">$2</a>'
+    ));
+  }
+
+  return output.join("\n");
 }
