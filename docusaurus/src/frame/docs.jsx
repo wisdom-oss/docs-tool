@@ -38,6 +38,9 @@ export default class Docs extends Component {
         });
       }
     }, 200);
+    let {repo, branch, path} = this.repoBranchPath;
+    document.querySelector("iframe.static_docs").src =
+      `/repos/${repo}/${branch}/static_docs/${path}`.replaceAll("//", "/");
   }
 
   componentWillUnmount() {
@@ -46,13 +49,12 @@ export default class Docs extends Component {
   }
 
   render() {
-    let {repo, branch, path} = this.repoBranchPath;
     return (
       <>
         <Layout noFooter={true}>
           <iframe
             className="static_docs"
-            src={`/repos/${repo}/${branch}/static_docs/${path}`}
+            src=""
             style={{width: "100%", flexGrow: 1}}
           ></iframe>
         </Layout>
