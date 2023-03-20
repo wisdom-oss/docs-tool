@@ -53,7 +53,7 @@ export default class Docs extends Component {
           <iframe
             className="static_docs"
             src={`/repos/${repo}/${branch}/static_docs/${path}`}
-            style={{width: "100%"}}
+            style={{width: "100%", flexGrow: 1}}
           ></iframe>
         </Layout>
       </>
