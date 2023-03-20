@@ -1,6 +1,6 @@
 {
   "name": "@wisdom-oss/docs-tool-docusaurus",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "private": true,
   "scripts": {
     "start": "docusaurus start --host 0.0.0.0 --no-open -p 3001",
