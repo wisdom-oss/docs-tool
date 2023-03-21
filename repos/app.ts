@@ -207,7 +207,8 @@ async function writeZipContent(filePath: string, fileName: string, entry: ZipEnt
   let content: Buffer | string = Buffer.from(await entry.arrayBuffer());
   if (entryIsMd) content = rebuildKnownLink(await entry.text())
     .replaceAll("<br>", "<br/>")
-    .replaceAll("<hr>", "<hr/>");
+    .replaceAll("<hr>", "<hr/>")
+    .replaceAll(/<img ([^<>]*?)\/?>/gi, "<img $1 />");
 
   await fsPromises.mkdir(path.dirname(writePath), {recursive: true});
   await fsPromises.writeFile(writePath, content);
