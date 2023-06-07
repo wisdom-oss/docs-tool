@@ -4,7 +4,7 @@ const repos = require("../data/repos/repos.json");
 
 const config = {
   title: "WISdoM OSS Docs",
-  url: "https://your-docusaurus-test-site.com",
+  url: "https://docs.wisdom-demo.uol.de",
   baseUrl: "/",
   onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
