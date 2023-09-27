@@ -55,21 +55,35 @@ export default function OtherDocsOnBranchNavbarItem(props) {
     for (let readme of branchMeta?.readmes) {
       let noExtName = readme.split(".md")[0];
       readmes.push(<li key={readme}>
-        <Link className={[
-          "dropdown__link",
-          rest === noExtName ? "dropdown__link--active" : ""
-        ].join(" ")} to={[
-          "",
-          repo,
-          sanitizedBranch,
-          group,
-          noExtName
-        ].join("/")}>{showPath(noExtName)}</Link>
+        <Link
+            className={[
+              "dropdown__link",
+              rest === noExtName ? "dropdown__link--active" : ""
+            ].join(" ")}
+
+            to={[
+              "",
+              repo,
+              sanitizedBranch,
+              "readme",
+              noExtName
+            ].join("/")}
+        >
+          {showPath(noExtName)}
+        </Link>
       </li>)
     }
 
-    return <div className="dropdown dropdown--hoverable">
-      <span className="navbar__link">{showPath(rest)}</span>
+    let tabName = showPath(rest);
+    if (!tabName.length) {
+      tabName = branchMeta?.readmes[0]?.split(".md")[0] || "README";
+    }
+
+    return <div
+        className="dropdown dropdown--hoverable"
+        style={{verticalAlign: "unset"}}
+    >
+      <span className="navbar__link">{tabName}</span>
       <ul className="dropdown__menu">{readmes}</ul>
     </div>;
   }
