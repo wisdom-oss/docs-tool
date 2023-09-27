@@ -58,7 +58,7 @@ export default function Index(prop) {
     for (let {path, label, description} of docs) {
       row.push(
         <div
-          className="col"
+          className="col margin-bottom--lg"
           key={"item" + groupItemCounter++}
         >
           <div className="card">
